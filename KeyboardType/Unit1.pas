@@ -109,17 +109,20 @@ end;
 procedure SimulateKeyDown(Key : byte);
 begin
     keybd_event(Key, 0, 0, 0);
+    sleep(100);
 end;
 
 procedure SimulateKeyUp(Key : byte);
 begin
     keybd_event(Key, 0, KEYEVENTF_KEYUP, 0);
+    sleep(100);
 end;
 
 procedure SimulateKeystroke(Key : byte; extra : DWORD);
 begin
     keybd_event(Key,extra,0,0);
     keybd_event(Key,extra,KEYEVENTF_KEYUP,0);
+    sleep(10);
 end;
 
 
@@ -482,7 +485,7 @@ begin
 
 
 
-  AssignFile(f, 'C:\Temp\Example01Header._feature');
+  AssignFile(f, 'C:\Temp\Example01Header.feature');
 
   Kol:=0;
   Reset(f);
@@ -676,6 +679,7 @@ begin
   begin
     Form1.Close;
     ExitProcess(0);
+    //Exit;
   end;
 
   gltypespeed:=100;
