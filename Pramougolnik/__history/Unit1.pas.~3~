@@ -135,7 +135,7 @@ begin
       if i=8 then
         glHowLong:=StrToInt(ParamStr(i));
       if i=9 then
-        glWidth:=StrToInt(ParamStr(i));
+       glWidth:=StrToInt(ParamStr(i));
 
       if LeftStr(ParamStr(i),13) = 'stopfilename=' then
       begin
@@ -227,7 +227,7 @@ end;
   glgraphics.SetCompositingQuality(CompositingQualityAssumeLinear);
   glgraphics.SetInterpolationMode(InterpolationModeHighQualityBilinear);
 
-  glPN.SetWidth(glWidth);
+  glPN.SetWidth(5);
 
 
   ResX:=glX1+OffsetX;
