@@ -69,6 +69,7 @@ const
   CentLen=3;
 begin
 
+  coef :=1;
   if glWidth < 10 then
     coef := glWidth/5;
   if glWidth >= 10 then
