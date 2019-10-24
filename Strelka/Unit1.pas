@@ -24,7 +24,7 @@ type
 var
   Form1: TForm1;
   glX1,glX2,glY1,glY2,glColor, glHowLong:Integer;
-  glColorR,glColorG,glColorB:Integer;
+  glColorR,glColorG,glColorB, glWidth:Integer;
   glFileName:String;
   CountTimer,MaxCountTimer:Integer;
   glFirstShow:Boolean;
@@ -61,14 +61,21 @@ end;
 
 procedure DrawArrowHead(Canvas: TCanvas; X,Y: Integer; Angle,LW: Extended);
 var
-  A1,A2: Extended;
+  A1,A2, coef,Beta: Extended;
   Arrow: array[0..3] of TPoint;
   OldWidth: Integer;
 const
-  Beta=0.322;
   LineLen=4.74;
   CentLen=3;
 begin
+
+  coef :=1;
+  if glWidth < 10 then
+    coef := glWidth/5;
+  if glWidth >= 10 then
+     coef := glWidth/10;
+
+  Beta :=0.322 * coef;
   Angle:=Pi+Angle;
   Arrow[0]:=Point(X,Y);
   A1:=Angle-Beta;
@@ -145,6 +152,7 @@ begin
  glHowLong:=30000;
  glColor := 255;
  glFileName:='';
+ glWidth := 10;
 
  for i := 1 to ParamCount do
     begin
@@ -164,7 +172,8 @@ begin
         glColorB:=StrToInt(ParamStr(i));
       if i=8 then
         glHowLong:=StrToInt(ParamStr(i));
-
+      if i=9 then
+        glWidth:=StrToInt(ParamStr(i));
 
       if LeftStr(ParamStr(i),13) = 'stopfilename=' then
       begin
@@ -246,8 +255,8 @@ begin
     Form1.BorderStyle := bsNone;
     Form1.Left:=1;
     Form1.Top:=1;
-    Form1.Width:= Max(glX1,glX2)+Border*2;
-    Form1.Height:=Max(glY1,glY2)+Border*2;
+    Form1.Width:= Max(glX1,glX2)+Border*3;
+    Form1.Height:=Max(glY1,glY2)+Border*3;
 
 
     Image1.Left:=0;
@@ -296,7 +305,7 @@ begin
   glgraphics.SetCompositingQuality(CompositingQualityAssumeLinear);
   glgraphics.SetInterpolationMode(InterpolationModeHighQualityBilinear);
 
-  glPN.SetWidth(10);
+  glPN.SetWidth(glWidth);
 
 
   ResX:=glX1+OffsetX;

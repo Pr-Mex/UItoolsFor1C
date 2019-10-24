@@ -9,8 +9,8 @@ uses
 type
   TForm1 = class(TForm)
     Button1: TButton;
-    RectangleTimer: TTimer;
     Image1: TImage;
+    RectangleTimer: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RectangleTimerTimer(Sender: TObject);
@@ -24,7 +24,7 @@ type
 var
   Form1: TForm1;
   glX1,glX2,glY1,glY2,glColor, glHowLong:Integer;
-  glColorR,glColorG,glColorB:Integer;
+  glColorR,glColorG,glColorB, glWidth:Integer;
   glFileName:String;
   CountTimer,MaxCountTimer:Integer;
   glFirstShow:Boolean;
@@ -58,29 +58,6 @@ begin
   RightStr:=Res;
 end;
 
-
-procedure DrawArrowHead(Canvas: TCanvas; X,Y: Integer; Angle,LW: Extended);
-var
-  A1,A2: Extended;
-  Arrow: array[0..3] of TPoint;
-  OldWidth: Integer;
-const
-  Beta=0.322;
-  LineLen=4.74;
-  CentLen=3;
-begin
-  Angle:=Pi+Angle;
-  Arrow[0]:=Point(X,Y);
-  A1:=Angle-Beta;
-  A2:=Angle+Beta;
-  Arrow[1]:=Point(X+Round(LineLen*LW*Cos(A1)),Y-Round(LineLen*LW*Sin(A1)));
-  Arrow[2]:=Point(X+Round(CentLen*LW*Cos(Angle)),Y-Round(CentLen*LW*Sin(Angle)));
-  Arrow[3]:=Point(X+Round(LineLen*LW*Cos(A2)),Y-Round(LineLen*LW*Sin(A2)));
-  OldWidth:=Canvas.Pen.Width;
-  Canvas.Pen.Width:=1;
-  Canvas.Polygon(Arrow);
-  Canvas.Pen.Width:=OldWidth
-end;
 
 procedure DrawRectangle(Canvas: TCanvas; X1,Y1,X2,Y2: Integer; LW: Extended);
 begin
@@ -125,8 +102,8 @@ begin
   end;
  }
 
- //X1, Y1, X2, Y2, Цвет, Длительность,{Имя стоп файла(необязательный)}
- //если на диске есть стоп файл, значит надо сделать exit
+ //X1, Y1, X2, Y2, ????, ????????????,{??? ???? ?????(??????????????)}
+ //???? ?? ????? ???? ???? ????, ?????? ???? ??????? exit
 
  glFirstShow:=True;
 
@@ -137,6 +114,7 @@ begin
  glHowLong:=30000;
  glColor := 255;
  glFileName:='';
+ glWidth := 3;
 
  for i := 1 to ParamCount do
     begin
@@ -156,7 +134,8 @@ begin
         glColorB:=StrToInt(ParamStr(i));
       if i=8 then
         glHowLong:=StrToInt(ParamStr(i));
-
+      if i=9 then
+        glWidth:=StrToInt(ParamStr(i));
 
       if LeftStr(ParamStr(i),13) = 'stopfilename=' then
       begin
@@ -168,28 +147,6 @@ begin
   DrawArrowTimer();
 
 end;
-
-procedure CopyScreenToImage();
-var
-  bm: TBitMap;
-  ms: TMemoryStream;
-begin
-    bm := TBitMap.Create;
-    bm.Width := Form1.Width; // ширина холста
-    bm.Height := Form1.Height; // длина холста
-    BitBlt(bm.Canvas.Handle, 0, 0,  bm.Width, bm.Height,
-    GetDC(0), Form1.Left, Form1.Top, SRCCOPY); // 0, 0,  bm.Width, bm.Height здесь это та часть экрана
-    // которую нужно копировать
-
-    ms := TMemoryStream.Create;
-    bm.SaveToStream(ms);
-    ms.Position := 0;
-    Form1.Image1.Picture.Bitmap.LoadFromStream(ms);
-    bm.Destroy;
-    ms.Free;
-
-end;
-
 
 procedure TForm1.RectangleTimerTimer(Sender: TObject);
   var
@@ -270,7 +227,7 @@ end;
   glgraphics.SetCompositingQuality(CompositingQualityAssumeLinear);
   glgraphics.SetInterpolationMode(InterpolationModeHighQualityBilinear);
 
-  glPN.SetWidth(3);
+  glPN.SetWidth(glWidth);
 
 
   ResX:=glX1+OffsetX;
