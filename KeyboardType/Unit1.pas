@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ClipBrd, ExtCtrls, StrUtils;
+  Dialogs, StdCtrls, ClipBrd, ExtCtrls, StrUtils, Registry;
 
 type
   TForm1 = class(TForm)
@@ -77,6 +77,16 @@ begin
 end;
 
 
+procedure DoAltShift();
+begin
+    keybd_event(VK_MENU, 0, 0, 0);
+    keybd_event(VK_LSHIFT, 0, 0, 0);
+    sleep(10);
+    keybd_event(VK_LSHIFT, 0, KEYEVENTF_KEYUP, 0);
+    keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
+    sleep(100);
+end;
+
 procedure DoCtrlShift();
 begin
     keybd_event(VK_LCONTROL, 0, 0, 0);
@@ -88,11 +98,32 @@ begin
 end;
 
 
+procedure DoSwitchLang();
+var
+   Reestr: TRegistry;
+   Param: String;
+begin
+     Reestr:=TRegistry.Create;
+     Reestr.RootKey:=HKEY_CURRENT_USER;
+     If Reestr.OpenKey('\Keyboard Layout\Toggle', False) Then
+        Begin
+            Param := Reestr.ReadString('Hotkey');
+            If Param = '1' Then
+                DoAltShift
+            Else
+                DoCtrlShift;
+
+             Reestr.CloseKey;
+        End;
+ 
+  Reestr.Free;
+
+end;
 
 procedure FullSwitchEng();
 begin
    LoadKeyboardLayout(PChar('00000409'), KLF_ACTIVATE);
-   DoCtrlShift;
+   DoSwitchLang;
    glTekLan:='en';
 end;
 
@@ -100,7 +131,7 @@ end;
 procedure FullSwitchRus();
 begin
    LoadKeyboardLayout(PChar('00000419'), KLF_ACTIVATE);
-   DoCtrlShift;
+   DoSwitchLang;
    glTekLan:='ru';
 end;
 
@@ -126,8 +157,7 @@ begin
 end;
 
 
-
-procedure SendKeysHome();
+                    procedure SendKeysHome();
 var
     i : integer;
     flag : bool;
