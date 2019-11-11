@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ClipBrd, ExtCtrls, StrUtils;
+  Dialogs, StdCtrls, ClipBrd, ExtCtrls, StrUtils, Registry;
 
 type
   TForm1 = class(TForm)
@@ -48,6 +48,7 @@ var
   glID:integer;
   glTekLan:string;
   gltypespeed:integer;
+  switchLangAltShift: boolean;
 
 implementation
 
@@ -76,6 +77,38 @@ begin
 
 end;
 
+function ItsSwitchLangAltShift():boolean;
+var
+   Reestr: TRegistry;
+   Param: String;
+begin
+     result:=false;
+     Reestr:=TRegistry.Create;
+     Reestr.RootKey:=HKEY_CURRENT_USER;
+     If Reestr.OpenKey('\Keyboard Layout\Toggle', False)  Then
+        Begin
+            Param := Reestr.ReadString('Hotkey');
+            If Param = '1' Then
+                result:=true
+            Else
+                result:=false;
+
+             Reestr.CloseKey;
+        End;
+  
+   Reestr.Free;
+
+end;
+
+procedure DoAltShift();
+begin
+    keybd_event(VK_MENU, 0, 0, 0);
+    keybd_event(VK_LSHIFT, 0, 0, 0);
+    sleep(10);
+    keybd_event(VK_LSHIFT, 0, KEYEVENTF_KEYUP, 0);
+    keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0);
+    sleep(100);
+end;
 
 procedure DoCtrlShift();
 begin
@@ -88,11 +121,20 @@ begin
 end;
 
 
+procedure DoSwitchLang();
+
+begin
+       If switchLangAltShift Then
+            DoAltShift
+       Else
+           DoCtrlShift;
+
+end;
 
 procedure FullSwitchEng();
 begin
    LoadKeyboardLayout(PChar('00000409'), KLF_ACTIVATE);
-   DoCtrlShift;
+   DoSwitchLang;
    glTekLan:='en';
 end;
 
@@ -100,7 +142,7 @@ end;
 procedure FullSwitchRus();
 begin
    LoadKeyboardLayout(PChar('00000419'), KLF_ACTIVATE);
-   DoCtrlShift;
+   DoSwitchLang;
    glTekLan:='ru';
 end;
 
@@ -124,7 +166,6 @@ begin
     keybd_event(Key,extra,KEYEVENTF_KEYUP,0);
     sleep(10);
 end;
-
 
 
 procedure SendKeysHome();
@@ -684,7 +725,7 @@ begin
 
   gltypespeed:=100;
   filename:='';
-
+  switchLangAltShift:= ItsSwitchLangAltShift();
 
   for i := 1 to ParamCount do
     begin
