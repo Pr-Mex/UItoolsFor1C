@@ -48,6 +48,7 @@ var
   glID:integer;
   glTekLan:string;
   gltypespeed:integer;
+  switchLangAltShift: boolean;
 
 implementation
 
@@ -76,6 +77,28 @@ begin
 
 end;
 
+function ItsSwitchLangAltShift():boolean;
+var
+   Reestr: TRegistry;
+   Param: String;
+begin
+     result:=false;
+     Reestr:=TRegistry.Create;
+     Reestr.RootKey:=HKEY_CURRENT_USER;
+     If Reestr.OpenKey('\Keyboard Layout\Toggle', False)  Then
+        Begin
+            Param := Reestr.ReadString('Hotkey');
+            If Param = '1' Then
+                result:=true
+            Else
+                result:=false;
+
+             Reestr.CloseKey;
+        End;
+  
+   Reestr.Free;
+
+end;
 
 procedure DoAltShift();
 begin
@@ -99,24 +122,12 @@ end;
 
 
 procedure DoSwitchLang();
-var
-   Reestr: TRegistry;
-   Param: String;
-begin
-     Reestr:=TRegistry.Create;
-     Reestr.RootKey:=HKEY_CURRENT_USER;
-     If Reestr.OpenKey('\Keyboard Layout\Toggle', False) Then
-        Begin
-            Param := Reestr.ReadString('Hotkey');
-            If Param = '1' Then
-                DoAltShift
-            Else
-                DoCtrlShift;
 
-             Reestr.CloseKey;
-        End;
- 
-  Reestr.Free;
+begin
+       If switchLangAltShift Then
+            DoAltShift
+       Else
+           DoCtrlShift;
 
 end;
 
@@ -157,7 +168,7 @@ begin
 end;
 
 
-                    procedure SendKeysHome();
+procedure SendKeysHome();
 var
     i : integer;
     flag : bool;
@@ -714,7 +725,7 @@ begin
 
   gltypespeed:=100;
   filename:='';
-
+  switchLangAltShift:= ItsSwitchLangAltShift();
 
   for i := 1 to ParamCount do
     begin
